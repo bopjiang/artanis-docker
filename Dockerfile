@@ -1,8 +1,8 @@
-FROM        buildpack-deps:jessie
+FROM        buildpack-deps:stretch
 MAINTAINER  Jiang Jia
 ENV         LANG C.UTF-8
-ENV         GUILE_VERSION 2.2.2
-ENV         ARTANIS_VERSION 0.2.1
+ENV         GUILE_VERSION 2.2.3
+ENV         ARTANIS_VERSION 0.2.5
 ENV         GUILE_DBI_VERSION 2.1.6
 ENV         GUILE_DBD_MYSQL_VERSION 2.1.6
 RUN     echo "deb http://mirrors.ustc.edu.cn/debian jessie main contrib non-free" >> /etc/apt/sources.list \
