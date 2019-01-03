@@ -1,9 +1,9 @@
 FROM        buildpack-deps:stretch
-MAINTAINER  Jiang Jia
+MAINTAINER  Jiang Jia, Mu Lei
 ENV         LANG C.UTF-8
 ENV         GUILE_VERSION 2.2.3
-ENV         ARTANIS_VERSION 0.2.5
-ENV         GUILE_DBI_VERSION 2.1.6
+ENV         ARTANIS_VERSION latest
+ENV         GUILE_DBI_VERSION 2.1.7
 ENV         GUILE_DBD_MYSQL_VERSION 2.1.6
 RUN     echo "deb http://mirrors.ustc.edu.cn/debian jessie main contrib non-free" >> /etc/apt/sources.list \
         && echo "deb-src http://mirrors.ustc.edu.cn/debian jessie main contrib non-free" >> /etc/apt/sources.list
@@ -12,7 +12,7 @@ RUN         apt-get update && apt-get build-dep -y --no-install-recommends \
                           && rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
-        && wget -c ftp://ftp.gnu.org/gnu/guile/guile-2.2.2.tar.gz \
+        && wget -c ftp://ftp.gnu.org/gnu/guile/guile-$GUILE_VERSION.tar.gz \
         && tar xvzf guile-$GUILE_VERSION.tar.gz \
         && rm -f guile-$GUILE_VERSION.tar.gz \
         && cd guile-$GUILE_VERSION && ./configure && make \
