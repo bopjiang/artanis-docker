@@ -1,40 +1,25 @@
-FROM        buildpack-deps:stretch
-MAINTAINER  Jiang Jia, Mu Lei
+FROM        debian:buster
+MAINTAINER  Mu Lei
 ENV         LANG C.UTF-8
-ENV         GUILE_VERSION 2.2.3
-ENV         ARTANIS_VERSION latest
-ENV         GUILE_DBI_VERSION 2.1.7
-ENV         GUILE_DBD_MYSQL_VERSION 2.1.6
-RUN     echo "deb http://mirrors.ustc.edu.cn/debian jessie main contrib non-free" >> /etc/apt/sources.list \
-        && echo "deb-src http://mirrors.ustc.edu.cn/debian jessie main contrib non-free" >> /etc/apt/sources.list
-RUN         apt-get update && apt-get build-dep -y --no-install-recommends \
-                              guile-2.0 \
-                          && rm -rf /var/lib/apt/lists/*
+RUN     echo "deb http://mirrors.ustc.edu.cn/debian buster main contrib non-free" > /etc/apt/sources.list \
+        && echo "deb-src http://mirrors.ustc.edu.cn/debian buster main contrib non-free" >> /etc/apt/sources.list
+RUN     apt-get update \
+        && apt-get install -y --no-install-recommends guile-2.2 guile-2.2-dev libmariadbclient-dev mariadb-server git ca-certificates \
+        && apt-get build-dep -y --no-install-recommends guile-2.2 \
+        && rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
-        && wget -c ftp://ftp.gnu.org/gnu/guile/guile-$GUILE_VERSION.tar.gz \
-        && tar xvzf guile-$GUILE_VERSION.tar.gz \
-        && rm -f guile-$GUILE_VERSION.tar.gz \
-        && cd guile-$GUILE_VERSION && ./configure && make \
-        && make install && ldconfig \
-        && wget -c http://download.gna.org/guile-dbi/guile-dbi-$GUILE_DBI_VERSION.tar.gz \
-        && tar xvzf guile-dbi-$GUILE_DBI_VERSION.tar.gz \
-        && rm -f guile-dbi-$GUILE_DBI_VERSION.tar.gz \
-        && cd guile-dbi-$GUILE_DBI_VERSION && ./configure && make \
-        && make install && ldconfig \
+        && git clone --depth 1 git://github.com/opencog/guile-dbi.git \
+        && cd guile-dbi/guile-dbi && ./autogen.sh && ./configure && make -j \
+        && make install && ldconfig && cd .. \
         \
-        && wget -c http://download.gna.org/guile-dbi/guile-dbd-mysql-$GUILE_DBD_MYSQL_VERSION.tar.gz \
-        && tar xvzf guile-dbd-mysql-$GUILE_DBD_MYSQL_VERSION.tar.gz \
-        && rm -f guile-dbd-mysql-$GUILE_DBD_MYSQL_VERSION.tar.gz \
-        && cd guile-dbd-mysql-$GUILE_DBD_MYSQL_VERSION && ./configure && make \
-        && make install && ldconfig \
+        && cd guile-dbd-mysql \
+        && ./autogen.sh && ./configure && make -j \
+        && make install && ldconfig && cd ../../ && rm -fr guile-dbi \
         \
-        && wget -c http://ftp.gnu.org/gnu/artanis/artanis-$ARTANIS_VERSION.tar.bz2 \
-        && tar xvjf artanis-$ARTANIS_VERSION.tar.bz2 \
-        && rm -f artanis-$ARTANIS_VERSION.tar.bz2 \
-        && cd artanis-$ARTANIS_VERSION && ./configure && make \
-        && make install && ldconfig
-
-CMD ["guile"]
-
-
+        && git clone --depth 1 git://git.savannah.gnu.org/artanis.git \
+        && cd artanis \
+	&& ./autogen.sh \
+	&& ./configure \
+	&& make -j \
+        && make install && cd .. && rm -fr artanis
